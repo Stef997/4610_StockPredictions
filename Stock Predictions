@@ -1,34 +1,43 @@
 import numpy as np
- 
+#equation setup for CEMA
 alpha = 2 / 6
 exp = np.array([alpha * (1 - alpha) ** (5 - i) for i in range(1, 6)]) + (1 - alpha) ** 5 / 5
- 
+
+#predicting stock
 def printTransactions(m, k, d, name, owned, prices):
     max_f = None
     min_f = None
- 
+
+    #loop through all stocks
     for i in range(k):
+        #calculating rise and fall of spikes
         f = getCEMA(prices[i]) - np.mean(prices[i])
+        #Sell all stocks for the one with the highest spike
         if owned[i] > 0 and f > 0 and (max_f is None or f > max_f[0]):
             max_f = (f, '{0} SELL {1}'.format(name[i], owned[i]))
+
+        #Buy all stocks for the one with the hardest fall
         elif m > prices[i][-1] and d > 0 and f > 0 and (min_f is None or f < min_f[0]):
             min_f = (f, '{0} BUY {1}'.format(name[i], int(m / prices[i][-1])))
- 
+
+    #Determining number of Buy and Sell actions
     if max_f is not None and min_f is not None:
         print(2)
     elif max_f is not None or min_f is not None:
         print(1)
     else:
         print(0)
- 
+    #indicating what to buy and/or sell
     if max_f is not None:
         print(max_f[1])
     if min_f is not None:
         print(min_f[1])
- 
+
+#Customized Exponential Moving Average
 def getCEMA(a):
     return np.dot(exp, a)
- 
+
+#main function
 def readInputAndRun():
     line = input().split()
     m, k, d = float(line[0]), int(line[1]), int(line[2])
@@ -41,5 +50,6 @@ def readInputAndRun():
         owned.append(int(line[1]))
         prices.append(list(map(float, line[2:])))
     printTransactions(m, k, d, name, owned, prices)
- 
+
+
 readInputAndRun()
